@@ -1,0 +1,36 @@
+<!--
+    Perform AMCL localisation: runs several nodes to generate odometry from laser scans (ICP) & IMU, loads a map of the POW assessment area, runs AMCL, plays back a dataset for localisation, and runs the visualiser with the correct visualisation parameters configured.
+-->
+
+<launch>
+
+	<node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
+	<param name="output_frame" value="odom"/>
+	<param name="freq" value="1"/>
+	<param name="sensor_timeout" value="5.0"/>
+	<param name="odom_used" value="true"/>
+	<param name="imu_used" value="true"/>
+	<param name="vo_used" value="false"/>
+	<param name="debug" value="false"/>
+	<param name="pub_odometry" value="true"/>
+	
+	<param name="self_diagnose" value="false"/>
+	<remap from="imu_data" to="imu2"/>
+	<param name="publish_tf" value="true"/>	 
+	<remap from="odom" to="wheelodom"/>
+	</node> 
+
+	
+	<node pkg="pow_analyzer" type="converter" name="converter" output="screen"> 
+	<remap from="imu/data" to="raw_imu"/> 
+	</node>
+	
+	<!--node pkg="tf" type="static_transform_publisher" name="map_tf" args="2.8 -1.07 0 1.422 0 0 /map /ekf_frame 10"/>  -->
+	
+	<node pkg="tf" type="static_transform_publisher" name="map_tf" args="0 0 0 1.6 0 0 /map /ekf_frame 10"/>
+
+	<node pkg="pow_analyzer" type="ekf_odom" name="ekf_odom" output="screen"/>
+
+	<include file="$(find pow_analyzer)/launch/pow_analyze_hector_wheelchair.launch"/>
+
+</launch>

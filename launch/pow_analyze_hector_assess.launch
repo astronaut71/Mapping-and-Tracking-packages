@@ -1,0 +1,68 @@
+<!--
+    Perform AMCL localisation: runs several nodes to generate odometry from laser scans (ICP) & IMU, loads a map of the POW assessment area, runs AMCL, plays back a dataset for localisation, and runs the visualiser with the correct visualisation parameters configured.
+-->
+
+<launch>
+	<param name="/use_sim_time" value="true"/>
+	<node name="hector_mapping" pkg="hector_mapping" type="hector_mapping" output="screen">
+ <param name="pub_map_odom_transform" value="false"/>
+	<remap from="scan" to="scan_2"/>
+ <param name="map_frame" value="map"/>
+	
+    
+
+	<param name="map_resolution" value="0.05"/> 
+	<param name="map_multi_res_levels" value="3"/> 
+	<param name="map_update_angle_thresh" value="0.1"/> 
+	<param name="map_update_distance_thresh" value="0.09"/> 
+	<!--default="0.4"/> --> 
+	<!--default="0.9"/> --> 
+	
+		
+ </node>
+
+
+	<node name="foo_throttler" type="throttle" pkg="topic_tools" args="messages /scan 10/scan_throttle" /> 
+	<node name="foo_throttler1" type="throttle" pkg="topic_tools" args="messages /raw_imu 10/raw_imu_throttle" /> 
+
+
+	<node name="rosplay" pkg="rosbag" type="play" args="$(find pow_analyzer)/data/10m_forward5.bag --clock"/>
+	
+	
+ <arg name="play_file1" default="10m_run1_file"/> 
+ <param name="forward10m_file" value="$(arg play_file1)"/> 
+ <!--arg name="play_file2" default="180turn_run1_file"/>  -->
+ <!--param name="turn180_file" value="$(arg play_file2)"/>  -->
+	<node pkg="tf" type="static_transform_publisher" name="corner_duhhu" args="-0.17 -0.2 0 0 0 0 base_link laser 20"/> 
+	
+	<node pkg="tf" type="static_transform_publisher" name="corner_a" args="0.45 0.3 0 0 0 0 /scanmatcher_frame /corner1 10"/>
+	<node pkg="tf" type="static_transform_publisher" name="corner_b" args="0.45 -0.3 0 0 0 0 /scanmatcher_frame /corner2 10"/>
+	<node pkg="tf" type="static_transform_publisher" name="corner_c" args="-0.45 -0.3 0 0 0 0 /scanmatcher_frame /corner3 10"/>
+	<node pkg="tf" type="static_transform_publisher" name="corner_d" args="-0.45 0.3 0 0 0 0 /scanmatcher_frame /corner4 10"/>
+
+
+	<node pkg="pow_analyzer" type="scan_conv" name="heector_odometry" output="screen"/> 
+	<node pkg="pow_analyzer" type="hector_odometry" name="hector_odometry" output="screen"/>  
+	
+
+	<node pkg="tf" type="static_transform_publisher" name="raw_tf" args="0 0 0 0 0 0 /map /raw_frame 10"/> 
+	<!--node pkg="pow_analyzer" type="pida_ramp_down_asses"  name="pida_ramp_down_asses" output="screen"/> -->
+	<!--node pkg="pow_analyzer" type="pida_ramp_up_asses"  name="pida_ramp_up_asses" output="screen"/> -->
+	<!--node pkg="pow_analyzer" type="pida_turn_180deg_asses"  name="pida_turn_180deg_asses" output="screen"/> -->
+	<!--node pkg="pow_analyzer" type="pida_parallel_parking_asses"  name="pida_parallel_parking_asses" output="screen"/> -->
+	<!--node pkg="pow_analyzer" type="pida_beside_parking_asses"  name="pida_beside_parking_asses" output="screen"/>  -->
+ <node pkg="pow_analyzer" type="wst_forward10m_raw_assess"  name="wst_forward10m_raw_assess" output="screen"/> -->
+ <!--node pkg="pow_analyzer" type="wst_forward_10m_asses_kopija"  name="wst_forward_10m_asses_kopija" output="screen"/> -->
+	<!--node pkg="pow_analyzer" type="wst_turn_90deg_asses"  name="wst_turn_90deg_asses" output="screen"/>  -->
+	<arg name="task1" default="10m_forward_task"/>
+ <param name="wst_forward10m_raw_assess" value="$(arg task1)"/> -->
+ <!--arg name="task2" default="180_deg_turn_task"/> -->
+ <!--param name="pida_turn_180deg_asses" value="$(arg task2)"/>-->
+
+	<!--node pkg="rviz" type="rviz" output="screen" name="rviz" args="-d $(find pow_analyzer)/launch/pow_rviz.vcg"/> -->
+	<!--node pkg="image_view" type="image_view" output="screen" name="imview" args="image:=/image_color_throttle"/>  -->
+
+
+	
+
+</launch>
