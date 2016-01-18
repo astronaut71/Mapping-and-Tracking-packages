@@ -1,0 +1,21 @@
+<package>
+  <description brief="pow_analyzer">
+
+     pow_analyzer
+
+  </description>
+  <author>Bojan</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/pow_analyzer</url>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="sensor_msgs"/>
+  <depend package="geometry_msgs"/>
+  <depend package="bullet"/>
+  <depend package="tf"/>
+
+</package>
+
+
